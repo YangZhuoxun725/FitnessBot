@@ -1,6 +1,10 @@
 import streamlit as st
 import replicate
 import os
+import sys
+
+def rerun():
+    os.execv(sys.executable, [sys.executable] + sys.argv)
 
 st.set_page_config(page_title="Fitness Schedule")
 
@@ -69,15 +73,14 @@ if st.session_state.page == "form":
 if st.session_state.submitted:
     st.session_state.page = "chat"
     st.session_state.submitted = False
-    st.experimental_rerun()
-
+    rerun()
 
 if st.session_state.page == "chat":
     if not st.session_state.user_data:
         st.warning("Please fill in your details first.")
         if st.button("Go to form"):
             st.session_state.page = "form"
-            st.experimental_rerun()
+            rerun()
     else:
         st.title("Fitness Chatbot 💬")
 
