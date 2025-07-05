@@ -19,8 +19,10 @@ SHORT_DAY_NAMES = {
 
 if "page" not in st.session_state:
     st.session_state.page = "form"
+
 if "user_data" not in st.session_state:
     st.session_state.user_data = None
+
 if "submitted" not in st.session_state:
     st.session_state.submitted = False
 
@@ -62,11 +64,15 @@ if st.session_state.page == "form":
             "days_free": selected_days,
             "bmi": weight / (height ** 2)
         }
-        st.session_state.page = "chat"
         st.session_state.submitted = True
-        st.experimental_rerun()
 
-elif st.session_state.page == "chat":
+if st.session_state.submitted:
+    st.session_state.page = "chat"
+    st.session_state.submitted = False
+    st.experimental_rerun()
+
+
+if st.session_state.page == "chat":
     if not st.session_state.user_data:
         st.warning("Please fill in your details first.")
         if st.button("Go to form"):
@@ -85,7 +91,7 @@ elif st.session_state.page == "chat":
 
             st.write("BMI:", round(st.session_state.user_data["bmi"], 2))
             st.write("Free Days:", ", ".join(st.session_state.user_data["days_free"]))
-            st.button('Back to Form', on_click=lambda: st.session_state.update({"page": "form", "submitted": False}))
+            st.button('Back to Form', on_click=lambda: st.session_state.update({"page": "form"}))
 
         if "messages" not in st.session_state:
             st.session_state.messages = [{
