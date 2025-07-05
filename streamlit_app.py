@@ -30,10 +30,8 @@ if st.session_state.page == "form":
             with cols[i]:
                 for time in TIMES:
                     key = get_day_key(day, time)
-                    if key not in st.session_state:
-                        st.session_state[key] = False
-                    st.session_state[key] = st.toggle(f"{day[:3]} {time}", key=key)
-                    if st.session_state[key]:
+                    is_selected = st.toggle(f"{day[:3]} {time}", key=key)
+                    if is_selected:
                         selected_days.append(f"{day} {time}")
 
         complete = st.form_submit_button("Complete")
