@@ -23,15 +23,25 @@ if st.session_state.page == "form":
         gender = st.selectbox("Gender:", ["Male", "Female", "Other"])
         sleep_time = st.slider("Sleep Time (hours):", 0.0, 24.0, 8.0, 0.5)
 
+        SHORT_DAY_NAMES = {
+            "Sunday": "Sun",
+            "Monday": "Mon",
+            "Tuesday": "Tue",
+            "Wednesday": "Wed",
+            "Thursday": "Thurs",
+            "Friday": "Fri",
+            "Saturday": "Sat"
+        }
+        
         st.markdown("### Select Days You're Free")
-
+        
         selected_days = []
         
         for time in TIMES:
             st.markdown(f"**{time}**")
             cols = st.columns(7)
             for i, day in enumerate(DAYS):
-                short_day = day[:3]
+                short_day = SHORT_DAY_NAMES[day]
                 key = f"{day}_{time}"
                 with cols[i]:
                     if st.checkbox(short_day, key=key):
