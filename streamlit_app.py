@@ -7,6 +7,16 @@ st.set_page_config(page_title="Fitness Schedule")
 DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 TIMES = ["Morning", "Evening"]
 
+SHORT_DAY_NAMES = {
+    "Sunday": "Sun",
+    "Monday": "Mon",
+    "Tuesday": "Tues",
+    "Wednesday": "Wed",
+    "Thursday": "Thurs",
+    "Friday": "Fri",
+    "Saturday": "Sat"
+}
+
 if "page" not in st.session_state:
     st.session_state.page = "form"
 
@@ -18,25 +28,14 @@ if st.session_state.page == "form":
 
     with st.form("user_info_form"):
         weight = st.number_input("Weight (kg):", min_value=1.0, step=0.1)
-        height = st.number_input("Height (cm):", min_value=1, step=1)
+        height = st.number_input("Height (m):", min_value=0.5, step=0.01)
         age = st.number_input("Age:", min_value=1)
         gender = st.selectbox("Gender:", ["Male", "Female", "Other"])
         sleep_time = st.slider("Sleep Time (hours):", 0.0, 24.0, 8.0, 0.5)
 
-        SHORT_DAY_NAMES = {
-            "Sunday": "Sun",
-            "Monday": "Mon",
-            "Tuesday": "Tue",
-            "Wednesday": "Wed",
-            "Thursday": "Thurs",
-            "Friday": "Fri",
-            "Saturday": "Sat"
-        }
-        
         st.markdown("### Select Days You're Free")
-        
         selected_days = []
-        
+
         for time in TIMES:
             st.markdown(f"**{time}**")
             cols = st.columns(7)
@@ -49,18 +48,18 @@ if st.session_state.page == "form":
 
         complete = st.form_submit_button("Complete")
 
-if complete:
-    st.session_state.user_data = {
-        "weight": weight,
-        "height": height,
-        "age": age,
-        "gender": gender,
-        "sleep_time": sleep_time,
-        "days_free": selected_days,
-        "bmi": weight / (height ** 2)
-    }
-    st.session_state.page = "chat"
-    st.experimental_rerun()
+    if complete:
+        st.session_state.user_data = {
+            "weight": weight,
+            "height": height,
+            "age": age,
+            "gender": gender,
+            "sleep_time": sleep_time,
+            "days_free": selected_days,
+            "bmi": weight / (height ** 2)
+        }
+        st.session_state.page = "chat"
+        st.experimental_rerun()
 
 elif st.session_state.page == "chat":
     st.title("Fitness Chatbot 💬")
