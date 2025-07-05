@@ -4,21 +4,40 @@ import os
 
 st.set_page_config(page_title="Fitness Schedule")
 
-DAYS_FREE_OPTIONS = ["Sunday Morning", "Sunday Evening", "Monday Morning", "Monday Evening", "Tuesday Morning", "Tuesday Evening", "Wednesday Morning", "Wednesday Evening", "Thursday Morning", "Thursday Evening", "Friday Morning", "Friday Evening", "Saturday Morning", "Saturday Evening"]
+DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+TIMES = ["Morning", "Evening"]
 
 if "page" not in st.session_state:
     st.session_state.page = "form"
 
+def get_day_key(day, time):
+    return f"{day}_{time}"
+
 if st.session_state.page == "form":
     st.title("Personal Fitness Setup")
+
     with st.form("user_info_form"):
         weight = st.number_input("Weight (kg):", min_value=1.0, step=0.1)
         height = st.number_input("Height (m):", min_value=0.5, step=0.01)
         age = st.number_input("Age:", min_value=1)
         gender = st.selectbox("Gender:", ["Male", "Female", "Other"])
         sleep_time = st.slider("Sleep Time (hours):", 0.0, 24.0, 8.0, 0.5)
-        days_free = st.multiselect("Days You're Free:", DAYS_FREE_OPTIONS)
+
+        st.markdown("### Select Days You're Free")
+        selected_days = []
+        cols = st.columns(len(DAYS))
+        for i, day in enumerate(DAYS):
+            with cols[i]:
+                for time in TIMES:
+                    key = get_day_key(day, time)
+                    if key not in st.session_state:
+                        st.session_state[key] = False
+                    st.session_state[key] = st.toggle(f"{day[:3]} {time}", key=key)
+                    if st.session_state[key]:
+                        selected_days.append(f"{day} {time}")
+
         complete = st.form_submit_button("Complete")
+
     if complete:
         st.session_state.user_data = {
             "weight": weight,
@@ -26,7 +45,7 @@ if st.session_state.page == "form":
             "age": age,
             "gender": gender,
             "sleep_time": sleep_time,
-            "days_free": days_free,
+            "days_free": selected_days,
             "bmi": weight / (height ** 2)
         }
         st.session_state.page = "chat"
@@ -34,6 +53,7 @@ if st.session_state.page == "form":
 
 elif st.session_state.page == "chat":
     st.title("Fitness Chatbot 💬")
+
     with st.sidebar:
         if 'REPLICATE_API_TOKEN' in st.secrets:
             st.success('API key already provided!', icon='✅')
@@ -41,6 +61,7 @@ elif st.session_state.page == "chat":
         else:
             replicate_api = st.text_input('Enter Replicate API token:', type='password')
         os.environ['REPLICATE_API_TOKEN'] = replicate_api
+
         st.write("BMI:", round(st.session_state.user_data["bmi"], 2))
         st.write("Free Days:", ", ".join(st.session_state.user_data["days_free"]))
         st.button('Back to Form', on_click=lambda: st.session_state.update({"page": "form"}))
