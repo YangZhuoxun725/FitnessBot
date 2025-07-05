@@ -18,7 +18,7 @@ if st.session_state.page == "form":
 
     with st.form("user_info_form"):
         weight = st.number_input("Weight (kg):", min_value=1.0, step=0.1)
-        height = st.number_input("Height (m):", min_value=0.5, step=0.01)
+        height = st.number_input("Height (cm):", min_value=1, step=1)
         age = st.number_input("Age:", min_value=1)
         gender = st.selectbox("Gender:", ["Male", "Female", "Other"])
         sleep_time = st.slider("Sleep Time (hours):", 0.0, 24.0, 8.0, 0.5)
