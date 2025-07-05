@@ -24,14 +24,16 @@ if st.session_state.page == "form":
         sleep_time = st.slider("Sleep Time (hours):", 0.0, 24.0, 8.0, 0.5)
 
         st.markdown("### Select Days You're Free")
-        
+
+        selected_days = []
+
         for time in TIMES:
-            cols = st.columns(len(DAYS))
+            st.markdown(f"**{time}**")
+            cols = st.columns(7)
             for i, day in enumerate(DAYS):
-                key = f"{day}_{time}"
+                key = get_day_key(day, time)
                 with cols[i]:
-                    is_selected = st.toggle(f"{day[:3]} {time}", key=key)
-                    if is_selected:
+                    if st.checkbox(day[:3], key=key):
                         selected_days.append(f"{day} {time}")
 
         complete = st.form_submit_button("Complete")
