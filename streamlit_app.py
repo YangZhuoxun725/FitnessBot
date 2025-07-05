@@ -49,18 +49,18 @@ if st.session_state.page == "form":
 
         complete = st.form_submit_button("Complete")
 
-    if complete:
-        st.session_state.user_data = {
-            "weight": weight,
-            "height": height,
-            "age": age,
-            "gender": gender,
-            "sleep_time": sleep_time,
-            "days_free": selected_days,
-            "bmi": weight / (height ** 2)
-        }
-        st.session_state.page = "chat"
-        st.experimental_rerun()
+if complete:
+    st.session_state.user_data = {
+        "weight": weight,
+        "height": height,
+        "age": age,
+        "gender": gender,
+        "sleep_time": sleep_time,
+        "days_free": selected_days,
+        "bmi": weight / (height ** 2)
+    }
+    st.session_state.page = "chat"
+    st.experimental_rerun()
 
 elif st.session_state.page == "chat":
     st.title("Fitness Chatbot 💬")
