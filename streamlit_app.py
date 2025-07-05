@@ -33,8 +33,9 @@ if st.session_state.page == "form":
             for i, day in enumerate(DAYS):
                 key = get_day_key(day, time)
                 with cols[i]:
-                    if st.checkbox(day[:3], key=key):
+                    if st.checkbox(day, key=key):
                         selected_days.append(f"{day} {time}")
+
 
         complete = st.form_submit_button("Complete")
 
