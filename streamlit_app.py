@@ -26,16 +26,16 @@ if st.session_state.page == "form":
         st.markdown("### Select Days You're Free")
 
         selected_days = []
-
+        
         for time in TIMES:
             st.markdown(f"**{time}**")
             cols = st.columns(7)
             for i, day in enumerate(DAYS):
-                key = get_day_key(day, time)
+                short_day = day[:3]
+                key = f"{day}_{time}"
                 with cols[i]:
-                    if st.checkbox(day, key=key):
+                    if st.checkbox(short_day, key=key):
                         selected_days.append(f"{day} {time}")
-
 
         complete = st.form_submit_button("Complete")
 
