@@ -24,12 +24,12 @@ if st.session_state.page == "form":
         sleep_time = st.slider("Sleep Time (hours):", 0.0, 24.0, 8.0, 0.5)
 
         st.markdown("### Select Days You're Free")
-        selected_days = []
-        cols = st.columns(len(DAYS))
-        for i, day in enumerate(DAYS):
-            with cols[i]:
-                for time in TIMES:
-                    key = get_day_key(day, time)
+        
+        for time in TIMES:
+            cols = st.columns(len(DAYS))
+            for i, day in enumerate(DAYS):
+                key = f"{day}_{time}"
+                with cols[i]:
                     is_selected = st.toggle(f"{day[:3]} {time}", key=key)
                     if is_selected:
                         selected_days.append(f"{day} {time}")
