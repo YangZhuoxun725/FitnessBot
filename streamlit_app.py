@@ -1,4 +1,13 @@
 import streamlit as st
+import replicate
+import os
+
+# Ensure the Replicate API token is set
+if 'REPLICATE_API_TOKEN' in st.secrets:
+    replicate_api = st.secrets['REPLICATE_API_TOKEN']
+else:
+    replicate_api = st.text_input('Enter Replicate API token:', type='password')
+os.environ['REPLICATE_API_TOKEN'] = replicate_api
 
 # Set up page configuration
 st.set_page_config(page_title="Personalized Fitness Assistant")
@@ -55,36 +64,37 @@ elif st.session_state.page == "chat":
         with st.chat_message(message["role"]):
             st.write(message["content"])
 
-    # Function to generate dynamic responses based on user data
-    def generate_response(user_input):
-        # Basic response generation based on user data
-        if "workout" in user_input.lower():
-            if st.session_state.user_data["age"] < 30:
-                return "I recommend focusing on strength training with compound exercises. You could try deadlifts, squats, and bench presses."
-            elif st.session_state.user_data["age"] >= 30:
-                return "At your age, it's important to include mobility exercises like yoga or stretching along with strength training to avoid injuries."
+    # Function to generate response using LLaMA 3 via Replicate API
+    def generate_llama_response(prompt_input):
+        base_prompt = (
+            f"You are a fitness instructor. Use the following user data: "
+            f"Weight: {st.session_state.user_data['weight']} kg, "
+            f"Height: {st.session_state.user_data['height']} m, "
+            f"Age: {st.session_state.user_data['age']}, "
+            f"Gender: {st.session_state.user_data['gender']}, "
+            f"Sleep Time: {st.session_state.user_data['sleep_time']} hrs, "
+            f"Free Days: {', '.join(st.session_state.user_data['days_free'])}. "
+            "Create personalized workout plans, give advice, and ask for more goals."
+        )
         
-        elif "bmi" in user_input.lower():
-            bmi = st.session_state.user_data["bmi"]
-            if bmi < 18.5:
-                return "Your BMI suggests you might be underweight. It’s important to focus on gaining muscle through strength training and a high-protein diet."
-            elif 18.5 <= bmi < 24.9:
-                return "Your BMI is in the healthy range. Keep up the good work! You can focus on maintaining this level of fitness."
-            elif bmi >= 30:
-                return "Your BMI suggests you might be overweight. A combination of cardio exercises and strength training could help reduce body fat."
+        chat_history = base_prompt
+        for msg in st.session_state.messages:
+            role = "User" if msg["role"] == "user" else "Assistant"
+            chat_history += f"\n{role}: {msg['content']}"
+        
+        response = replicate.run(
+            "a16z-infra/llama3-chat:latest",  # LLaMA 3 model endpoint
+            input={"prompt": f"{chat_history}\nAssistant:", "temperature": 0.7, "max_length": 150}
+        )
+        return ''.join(response)
 
-        elif "diet" in user_input.lower():
-            return "For a balanced diet, focus on whole foods, lean proteins, vegetables, fruits, and healthy fats. Stay hydrated!"
-
-        return "I'm here to assist you with personalized fitness advice! Let me know what you'd like help with."
-
-    # Get user input and provide a dynamic response
+    # Get user input and generate LLaMA 3 response
     if prompt := st.chat_input("Ask me anything about your fitness plan!"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.write(prompt)
         with st.chat_message("fitness instructor"):
-            # Generate and show the response based on user input
-            reply = generate_response(prompt)
-            st.write(reply)
-            st.session_state.messages.append({"role": "fitness instructor", "content": reply})
+            with st.spinner("Thinking..."):
+                reply = generate_llama_response(prompt)
+                st.write(reply)
+                st.session_state.messages.append({"role": "fitness instructor", "content": reply})
