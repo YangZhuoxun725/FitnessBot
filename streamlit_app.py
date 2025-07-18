@@ -64,31 +64,19 @@ elif st.session_state.page == "chat":
         with st.chat_message(message["role"]):
             st.write(message["content"])
 
-    # Function to generate response using LLaMA 3 via Replicate API
+    # Function to generate response using LLaMA 3 model via Replicate API
     def generate_llama_response(prompt_input):
-        base_prompt = (
-            f"You are a fitness instructor. Use the following user data: "
-            f"Weight: {st.session_state.user_data['weight']} kg, "
-            f"Height: {st.session_state.user_data['height']} m, "
-            f"Age: {st.session_state.user_data['age']}, "
-            f"Gender: {st.session_state.user_data['gender']}, "
-            f"Sleep Time: {st.session_state.user_data['sleep_time']} hrs, "
-            f"Free Days: {', '.join(st.session_state.user_data['days_free'])}. "
-            "Create personalized workout plans, give advice, and ask for more goals."
-        )
-        
-        chat_history = base_prompt
-        for msg in st.session_state.messages:
-            role = "User" if msg["role"] == "user" else "Assistant"
-            chat_history += f"\n{role}: {msg['content']}"
-        
-        response = replicate.run(
-            "a16z-infra/llama3-chat:latest",  # LLaMA 3 model endpoint
-            input={"prompt": f"{chat_history}\nAssistant:", "temperature": 0.7, "max_length": 150}
-        )
-        return ''.join(response)
+        try:
+            response = replicate.run(
+                "a16z-infra/llama13b-v2-chat:latest",  # Replace with the correct model reference
+                input={"prompt": f"{prompt_input}\nAssistant:", "temperature": 0.7, "max_length": 150}
+            )
+            return ''.join(response)
+        except replicate.exceptions.ReplicateError as e:
+            st.error(f"Error: {e}")
+            return "Sorry, there was an error processing your request. Please try again later."
 
-    # Get user input and generate LLaMA 3 response
+    # Get user input and generate LLaMA response
     if prompt := st.chat_input("Ask me anything about your fitness plan!"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
