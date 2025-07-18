@@ -33,7 +33,7 @@ if st.session_state.page == "form":
             "bmi": weight / (height ** 2)
         }
         st.session_state.page = "chat"
-        st.experimental_rerun()
+        st.rerun()
 
 # Step 2: Chatbot Page (Simplified)
 elif st.session_state.page == "chat":
