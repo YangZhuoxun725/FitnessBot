@@ -108,6 +108,7 @@ elif st.session_state.page == "chat":
             return ''.join(response)
         except Exception as e:
             st.error(f"Error generating response from Replicate: {str(e)}")
+            st.write(f"**Detailed Error**: {str(e)}")  # This will log the full error message to Streamlit.
             return "Sorry, there was an error generating your workout plan. Please try again later."
 
     # Get user input and provide a response
@@ -116,7 +117,8 @@ elif st.session_state.page == "chat":
         with st.chat_message("user"):
             st.write(prompt)
         with st.chat_message("fitness instructor"):
-            with st.spinner("Thinking..."):
+            with st.spinner("Generating your personalized workout plan... please wait!"):
                 reply = generate_llama2_response(prompt)
                 st.write(reply)
                 st.session_state.messages.append({"role": "fitness instructor", "content": reply})
+
